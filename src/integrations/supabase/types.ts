@@ -212,6 +212,7 @@ export type Database = {
         Row: {
           address: string
           city: string
+          clothing_size: string | null
           created_at: string
           customer_name: string
           delivery_fee_da: number
@@ -232,6 +233,7 @@ export type Database = {
         Insert: {
           address: string
           city: string
+          clothing_size?: string | null
           created_at?: string
           customer_name: string
           delivery_fee_da: number
@@ -252,6 +254,7 @@ export type Database = {
         Update: {
           address?: string
           city?: string
+          clothing_size?: string | null
           created_at?: string
           customer_name?: string
           delivery_fee_da?: number
