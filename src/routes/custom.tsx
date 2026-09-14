@@ -29,7 +29,7 @@ export const Route = createFileRoute("/custom")({
       },
     ],
   }),
-  component: CustomShirt;
+  component: CustomShirt,
 });
 
 const MODELS = ["Heavyweight Tee", "Oversized Tee", "Boxy Hoodie", "Crewneck Sweat"] as const;
