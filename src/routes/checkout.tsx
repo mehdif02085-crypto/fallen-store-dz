@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/lib/cart";
-import { useI18n, type TKey } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
 import { formatDA, isValidAlgerianPhone, normalizePhone } from "@/lib/format";
 import { deliverySettingsQuery, paymentMethodsQuery, wilayasQuery } from "@/lib/queries";
 
@@ -375,5 +375,3 @@ function Checkout() {
     </div>
   );
 }
-
-export type { TKey };
