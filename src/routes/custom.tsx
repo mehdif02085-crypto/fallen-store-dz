@@ -54,7 +54,8 @@ function CustomShirt() {
   const { data: settings } = useQuery(customSettingsQuery);
 
   const [model, setModel] = useState<string>(MODELS[0]);
-  const [color, setColor] = useState(SHIRT_COLORS[0]);
+  type ShirtColor = (typeof SHIRT_COLORS)[number];
+  const [color, setColor] = useState<ShirtColor>(SHIRT_COLORS[0]);
   const [size, setSize] = useState<string>("M");
   const [text, setText] = useState("");
   const [textColor, setTextColor] = useState<string>(TEXT_COLORS[0]);

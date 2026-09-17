@@ -26,7 +26,10 @@ const STATUS_LABEL: Record<string, string> = {
   cancelled: "Annulée",
 };
 
-const PAYMENT_LABEL: Record<string, string> = {
+type OrderStatus = (typeof STATUSES)[number];
+type PaymentStatus = "unpaid" | "pending" | "paid" | "failed" | "refunded";
+
+const PAYMENT_LABEL: Record<PaymentStatus, string> = {
   unpaid: "Non payée",
   pending: "En attente",
   paid: "Payée",
@@ -84,10 +87,10 @@ function AdminOrders() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: async ({ id, next }: { id: string; next: string }) => {
+    mutationFn: async ({ id, next }: { id: string; next: OrderStatus }) => {
       const { error } = await supabase
         .from("orders")
-        .update({ status: next as OrderRow["status"] })
+        .update({ status: next })
         .eq("id", id);
       if (error) throw error;
     },
@@ -95,10 +98,10 @@ function AdminOrders() {
   });
 
   const updatePayment = useMutation({
-    mutationFn: async ({ id, next }: { id: string; next: string }) => {
+    mutationFn: async ({ id, next }: { id: string; next: PaymentStatus }) => {
       const { error } = await supabase
         .from("orders")
-        .update({ payment_status: next as OrderRow["payment_status"] })
+        .update({ payment_status: next })
         .eq("id", id);
       if (error) throw error;
     },
@@ -182,7 +185,7 @@ function AdminOrders() {
               <p className="ms-auto text-sm font-semibold">{formatDA(o.total_da)} DA</p>
               <select
                 value={o.status}
-                onChange={(e) => updateStatus.mutate({ id: o.id, next: e.target.value })}
+                onChange={(e) => updateStatus.mutate({ id: o.id, next: e.target.value as OrderStatus })}
                 className="field w-auto text-xs"
                 aria-label="Statut de la commande"
               >
@@ -194,11 +197,11 @@ function AdminOrders() {
               </select>
               <select
                 value={o.payment_status}
-                onChange={(e) => updatePayment.mutate({ id: o.id, next: e.target.value })}
+                onChange={(e) => updatePayment.mutate({ id: o.id, next: e.target.value as PaymentStatus })}
                 className="field w-auto text-xs"
                 aria-label="Statut du paiement"
               >
-                {Object.keys(PAYMENT_LABEL).map((s) => (
+                {(Object.keys(PAYMENT_LABEL) as PaymentStatus[]).map((s) => (
                   <option key={s} value={s}>
                     {PAYMENT_LABEL[s]}
                   </option>

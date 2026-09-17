@@ -33,9 +33,9 @@ export const Route = createFileRoute("/admin")({
 
 const LINKS = [
   { to: "/admin", label: "Commandes", exact: true },
-  { to: "/admin/products", label: "Produits" },
-  { to: "/admin/designs", label: "Personnalisations" },
-  { to: "/admin/settings", label: "Réglages" },
+  { to: "/admin/products", label: "Produits", exact: false },
+  { to: "/admin/designs", label: "Personnalisations", exact: false },
+  { to: "/admin/settings", label: "Réglages", exact: false },
 ] as const;
 
 function AdminLayout() {
@@ -72,7 +72,7 @@ function AdminLayout() {
             <Link
               key={l.to}
               to={l.to}
-              activeOptions={{ exact: l.exact ?? false }}
+              activeOptions={{ exact: l.exact }}
               activeProps={{ className: "bg-ink text-canvas" }}
               inactiveProps={{ className: "bg-ink/5" }}
               className="shrink-0 rounded-xl px-3.5 py-2 text-xs font-semibold"

@@ -11,11 +11,13 @@ import { categoriesQuery, effectivePrice, productsQuery } from "@/lib/queries";
 type ShopSearch = { category?: string; sale?: boolean; q?: string };
 
 export const Route = createFileRoute("/shop")({
-  validateSearch: (search: Record<string, unknown>): ShopSearch => ({
-    category: typeof search.category === "string" ? search.category : undefined,
-    sale: search.sale === true || search.sale === "true" ? true : undefined,
-    q: typeof search.q === "string" ? search.q : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): ShopSearch => {
+    const out: ShopSearch = {};
+    if (typeof search["category"] === "string") out.category = search["category"];
+    if (search["sale"] === true || search["sale"] === "true") out.sale = true;
+    if (typeof search["q"] === "string") out.q = search["q"];
+    return out;
+  },
   head: () => ({
     meta: [
       { title: "Boutique — tous les produits | Fallen Store" },

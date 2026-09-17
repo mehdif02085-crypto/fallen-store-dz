@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { Img } from "@/components/img";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useI18n } from "@/lib/i18n";
@@ -47,16 +48,13 @@ function Categories() {
                 style={{ animationDelay: `${i * 60}ms` }}
               >
                 <div className="aspect-square bg-panel">
-                  {cover && (
-                    <img
-                      src={cover}
-                      alt={lang === "ar" ? c.name_ar : c.name_fr}
-                      loading="lazy"
-                      width={1024}
-                      height={1024}
-                      className="size-full object-cover"
-                    />
-                  )}
+                  <Img
+                    src={cover}
+                    alt={lang === "ar" ? c.name_ar : c.name_fr}
+                    width={1024}
+                    height={1024}
+                    className="size-full object-cover"
+                  />
                 </div>
                 <div className="p-3">
                   <p className="text-sm font-semibold uppercase">

@@ -36,11 +36,13 @@ type OrderResult = {
 };
 
 export const Route = createFileRoute("/order")({
-  validateSearch: (search: Record<string, unknown>): OrderSearch => ({
-    number: typeof search.number === "string" ? search.number : undefined,
-    phone: typeof search.phone === "string" ? search.phone : undefined,
-    new: search.new === true || search.new === "true" ? true : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): OrderSearch => {
+    const out: OrderSearch = {};
+    if (typeof search["number"] === "string") out.number = search["number"];
+    if (typeof search["phone"] === "string") out.phone = search["phone"];
+    if (search["new"] === true || search["new"] === "true") out.new = true;
+    return out;
+  },
   head: () => ({
     meta: [
       { title: "Suivi de commande | Fallen Store" },
