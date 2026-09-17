@@ -66,13 +66,13 @@ function Checkout() {
 
   function validate() {
     const e: Record<string, string> = {};
-    if (fullName.trim().length < 3) e.fullName = t("checkout.err.name");
-    if (!isValidAlgerianPhone(phone)) e.phone = t("checkout.err.phone");
-    if (!wilayaCode) e.wilaya = t("checkout.err.wilaya");
-    if (city.trim().length < 2) e.city = t("checkout.err.city");
-    if (address.trim().length < 8) e.address = t("checkout.err.address");
-    if (!size) e.size = t("checkout.err.size");
-    if (!activeMethod) e.method = t("checkout.err.payment");
+    if (fullName.trim().length < 3) e["fullName"] = t("checkout.err.name");
+    if (!isValidAlgerianPhone(phone)) e["phone"] = t("checkout.err.phone");
+    if (!wilayaCode) e["wilaya"] = t("checkout.err.wilaya");
+    if (city.trim().length < 2) e["city"] = t("checkout.err.city");
+    if (address.trim().length < 8) e["address"] = t("checkout.err.address");
+    if (!size) e["size"] = t("checkout.err.size");
+    if (!activeMethod) e["method"] = t("checkout.err.payment");
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -131,8 +131,9 @@ function Checkout() {
   }
 
   function Err({ name }: { name: string }) {
-    if (!errors[name]) return null;
-    return <p className="mt-1 text-[11px] text-danger">{errors[name]}</p>;
+    const msg = errors[name];
+    if (!msg) return null;
+    return <p className="mt-1 text-[11px] text-danger">{msg}</p>;
   }
 
   return (
