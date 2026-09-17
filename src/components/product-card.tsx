@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Plus, Check } from "lucide-react";
 import { useState } from "react";
+import { Img } from "@/components/img";
 import { useCart } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
 import { formatDA } from "@/lib/format";
@@ -57,16 +58,13 @@ export function ProductCard({ product, delay = 0 }: { product: Product; delay?: 
     >
       <Link to="/product/$slug" params={{ slug: product.slug }} className="block">
         <div className="relative aspect-square overflow-hidden bg-panel">
-          {image ? (
-            <img
-              src={image}
-              alt={product.name}
-              loading="lazy"
-              width={1024}
-              height={1024}
-              className="size-full object-cover transition-transform duration-500 hover:scale-105"
-            />
-          ) : null}
+          <Img
+            src={image}
+            alt={product.name}
+            width={1024}
+            height={1024}
+            className="size-full object-cover transition-transform duration-500 hover:scale-105"
+          />
           {onSale && (
             <span className="absolute start-2 top-2 rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent-foreground">
               {t("shop.sale")}

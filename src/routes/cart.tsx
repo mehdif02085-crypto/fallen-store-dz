@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { Img } from "@/components/img";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useCart } from "@/lib/cart";
@@ -45,16 +46,13 @@ function CartPage() {
               {items.map((item) => (
                 <li key={item.key} className="flex gap-3 rounded-2xl glass p-3">
                   <div className="size-20 shrink-0 overflow-hidden rounded-xl bg-panel">
-                    {item.image && (
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        loading="lazy"
-                        width={256}
-                        height={256}
-                        className="size-full object-cover"
-                      />
-                    )}
+                    <Img
+                      src={item.image}
+                      alt={item.name}
+                      width={256}
+                      height={256}
+                      className="size-full object-cover"
+                    />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">

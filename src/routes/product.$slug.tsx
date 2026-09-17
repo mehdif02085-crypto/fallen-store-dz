@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Check } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Img } from "@/components/img";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ProductCard } from "@/components/product-card";
@@ -130,9 +131,10 @@ function ProductPage() {
         <div className="grid grid-cols-2 gap-2">
           <div className="aspect-[3/4] overflow-hidden rounded-xl bg-panel">
             {images[0] && (
-              <img
+              <Img
                 src={images[0].url}
                 alt={images[0].alt ?? product.name}
+                eager
                 width={768}
                 height={960}
                 className="size-full object-cover"
@@ -142,10 +144,9 @@ function ProductPage() {
           <div className="grid grid-rows-2 gap-2">
             {images.slice(1, 3).map((img) => (
               <div key={img.id} className="aspect-square overflow-hidden rounded-xl bg-panel">
-                <img
+                <Img
                   src={img.url}
                   alt={img.alt ?? product.name}
-                  loading="lazy"
                   width={768}
                   height={768}
                   className="size-full object-cover"
