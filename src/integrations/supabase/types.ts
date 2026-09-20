@@ -769,8 +769,34 @@ export type Database = {
         Args: { p_note?: string; p_request_id: string }
         Returns: Json
       }
+      attach_payment_intent: {
+        Args: {
+          p_checkout_url: string
+          p_mode: string
+          p_order_number: string
+          p_provider: string
+          p_provider_ref: string
+        }
+        Returns: Json
+      }
+      confirm_payment: {
+        Args: {
+          p_amount_da?: number
+          p_event_id: string
+          p_payload?: Json
+          p_provider: string
+          p_provider_ref: string
+          p_reason?: string
+          p_result: string
+        }
+        Returns: Json
+      }
       current_verified_email: { Args: never; Returns: string }
       get_order_by_number: {
+        Args: { p_order_number: string; p_phone: string }
+        Returns: Json
+      }
+      get_payment_state: {
         Args: { p_order_number: string; p_phone: string }
         Returns: Json
       }
@@ -816,7 +842,12 @@ export type Database = {
       }
       my_admin_status: { Args: never; Returns: Json }
       place_order: {
-        Args: { p_customer: Json; p_items: Json; p_payment_method: string }
+        Args: {
+          p_customer: Json
+          p_idempotency_key?: string
+          p_items: Json
+          p_payment_method: string
+        }
         Returns: Json
       }
       reject_admin_request: {
