@@ -124,3 +124,57 @@ export const getPaymentIntegrations = createServerFn({ method: "GET" })
     const { integrationStatus } = await import("./payments/providers.server");
     return integrationStatus();
   });
+
+/**
+ * Re-checks a pending payment with the provider (used by the confirmation page).
+ * SATIM does not push webhooks, so its result is pulled back from the bank here.
+ */
+export const syncPaymentStatus = createServerFn({ method: "POST" })
+  .inputValidator((data) =>
+    z
+      .object({ orderNumber: z.string().min(4).max(40), phone: z.string().min(9).max(20) })
+      .parse(data),
+  )
+  .handler(async ({ data }): Promise<{ payment_status: string; status: string }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { PROVIDERS } = await import("./payments/providers.server");
+
+    const { data: order } = await supabaseAdmin
+      .from("orders")
+      .select("id, order_number, phone, payment_status, status")
+      .eq("order_number", data.orderNumber)
+      .eq("phone", data.phone)
+      .maybeSingle();
+    if (!order) throw new Error("ORDER_NOT_FOUND");
+
+    if (order.payment_status === "pending") {
+      const { data: payment } = await supabaseAdmin
+        .from("payments")
+        .select("provider, provider_ref")
+        .eq("order_id", order.id)
+        .maybeSingle();
+
+      if (payment?.provider === "satim" && payment.provider_ref) {
+        const verdict = await PROVIDERS.satim.confirmOrder(payment.provider_ref);
+        if (verdict && verdict.result !== "pending") {
+          await supabaseAdmin.rpc("confirm_payment", {
+            p_provider: "satim",
+            p_provider_ref: verdict.providerRef,
+            p_event_id: verdict.eventId,
+            p_result: verdict.result,
+            p_amount_da: verdict.amountDa,
+            p_payload: { type: verdict.eventType },
+            p_reason: verdict.reason,
+          });
+        }
+      }
+    }
+
+    const { data: fresh } = await supabaseAdmin
+      .from("orders")
+      .select("payment_status, status")
+      .eq("id", order.id)
+      .single();
+
+    return { payment_status: fresh?.payment_status ?? order.payment_status, status: fresh?.status ?? order.status };
+  });
