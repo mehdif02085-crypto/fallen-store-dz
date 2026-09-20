@@ -38,8 +38,10 @@ const LINKS = [
   { to: "/admin/customers", label: "Clients", exact: false },
   { to: "/admin/designs", label: "Personnalisations", exact: false },
   { to: "/admin/team", label: "Administrateurs", exact: false },
+  { to: "/admin/payments", label: "Paiements", exact: false },
   { to: "/admin/audit", label: "Journal", exact: false },
   { to: "/admin/settings", label: "Réglages", exact: false },
+
 ] as const;
 
 function AdminLayout() {

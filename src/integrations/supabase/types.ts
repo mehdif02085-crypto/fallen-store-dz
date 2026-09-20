@@ -280,6 +280,47 @@ export type Database = {
           },
         ]
       }
+      order_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          note: string | null
+          order_id: string
+          payment_status: Database["public"]["Enums"]["payment_status"] | null
+          source: string
+          status: Database["public"]["Enums"]["order_status"] | null
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id: string
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
+          source?: string
+          status?: Database["public"]["Enums"]["order_status"] | null
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id?: string
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
+          source?: string
+          status?: Database["public"]["Enums"]["order_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_history_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           address: string
@@ -290,6 +331,7 @@ export type Database = {
           delivery_fee_da: number
           delivery_notes: string | null
           id: string
+          idempotency_key: string | null
           order_number: string
           payment_method: string
           payment_status: Database["public"]["Enums"]["payment_status"]
@@ -311,6 +353,7 @@ export type Database = {
           delivery_fee_da: number
           delivery_notes?: string | null
           id?: string
+          idempotency_key?: string | null
           order_number: string
           payment_method: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
@@ -332,6 +375,7 @@ export type Database = {
           delivery_fee_da?: number
           delivery_notes?: string | null
           id?: string
+          idempotency_key?: string | null
           order_number?: string
           payment_method?: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
@@ -361,14 +405,57 @@ export type Database = {
           },
         ]
       }
+      payment_events: {
+        Row: {
+          created_at: string
+          event_id: string
+          event_type: string | null
+          id: string
+          order_id: string | null
+          payload: Json | null
+          processed_at: string | null
+          provider: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          event_type?: string | null
+          id?: string
+          order_id?: string | null
+          payload?: Json | null
+          processed_at?: string | null
+          provider: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          event_type?: string | null
+          id?: string
+          order_id?: string | null
+          payload?: Json | null
+          processed_at?: string | null
+          provider?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_methods: {
         Row: {
           code: string
           description_ar: string | null
           description_fr: string | null
           is_enabled: boolean
+          is_online: boolean
           name_ar: string
           name_fr: string
+          provider_key: string
           requires_credentials: boolean
           sort_order: number
         }
@@ -377,8 +464,10 @@ export type Database = {
           description_ar?: string | null
           description_fr?: string | null
           is_enabled?: boolean
+          is_online?: boolean
           name_ar: string
           name_fr: string
+          provider_key?: string
           requires_credentials?: boolean
           sort_order?: number
         }
@@ -387,8 +476,10 @@ export type Database = {
           description_ar?: string | null
           description_fr?: string | null
           is_enabled?: boolean
+          is_online?: boolean
           name_ar?: string
           name_fr?: string
+          provider_key?: string
           requires_credentials?: boolean
           sort_order?: number
         }
@@ -397,30 +488,45 @@ export type Database = {
       payments: {
         Row: {
           amount_da: number
+          checkout_url: string | null
           created_at: string
+          failure_reason: string | null
           id: string
+          mode: string
           order_id: string
           provider: string
+          provider_ref: string | null
           reference: string | null
           status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string
         }
         Insert: {
           amount_da: number
+          checkout_url?: string | null
           created_at?: string
+          failure_reason?: string | null
           id?: string
+          mode?: string
           order_id: string
           provider: string
+          provider_ref?: string | null
           reference?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
         }
         Update: {
           amount_da?: number
+          checkout_url?: string | null
           created_at?: string
+          failure_reason?: string | null
           id?: string
+          mode?: string
           order_id?: string
           provider?: string
+          provider_ref?: string | null
           reference?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
         }
         Relationships: [
           {
@@ -663,8 +769,34 @@ export type Database = {
         Args: { p_note?: string; p_request_id: string }
         Returns: Json
       }
+      attach_payment_intent: {
+        Args: {
+          p_checkout_url: string
+          p_mode: string
+          p_order_number: string
+          p_provider: string
+          p_provider_ref: string
+        }
+        Returns: Json
+      }
+      confirm_payment: {
+        Args: {
+          p_amount_da?: number
+          p_event_id: string
+          p_payload?: Json
+          p_provider: string
+          p_provider_ref: string
+          p_reason?: string
+          p_result: string
+        }
+        Returns: Json
+      }
       current_verified_email: { Args: never; Returns: string }
       get_order_by_number: {
+        Args: { p_order_number: string; p_phone: string }
+        Returns: Json
+      }
+      get_payment_state: {
         Args: { p_order_number: string; p_phone: string }
         Returns: Json
       }
@@ -710,7 +842,12 @@ export type Database = {
       }
       my_admin_status: { Args: never; Returns: Json }
       place_order: {
-        Args: { p_customer: Json; p_items: Json; p_payment_method: string }
+        Args: {
+          p_customer: Json
+          p_idempotency_key?: string
+          p_items: Json
+          p_payment_method: string
+        }
         Returns: Json
       }
       reject_admin_request: {
@@ -730,12 +867,22 @@ export type Database = {
       app_role: "admin" | "staff"
       order_status:
         | "pending"
+        | "payment_pending"
+        | "paid"
         | "confirmed"
         | "preparing"
         | "shipped"
         | "delivered"
         | "cancelled"
-      payment_status: "unpaid" | "pending" | "paid" | "failed" | "refunded"
+        | "payment_failed"
+      payment_status:
+        | "unpaid"
+        | "pending"
+        | "paid"
+        | "failed"
+        | "refunded"
+        | "cancelled"
+        | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -866,13 +1013,24 @@ export const Constants = {
       app_role: ["admin", "staff"],
       order_status: [
         "pending",
+        "payment_pending",
+        "paid",
         "confirmed",
         "preparing",
         "shipped",
         "delivered",
         "cancelled",
+        "payment_failed",
       ],
-      payment_status: ["unpaid", "pending", "paid", "failed", "refunded"],
+      payment_status: [
+        "unpaid",
+        "pending",
+        "paid",
+        "failed",
+        "refunded",
+        "cancelled",
+        "expired",
+      ],
     },
   },
 } as const

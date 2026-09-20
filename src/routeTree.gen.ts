@@ -25,10 +25,12 @@ import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminDesignsRouteImport } from './routes/admin.designs'
 import { Route as AdminInventoryRouteImport } from './routes/admin.inventory'
+import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminTeamRouteImport } from './routes/admin.team'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
+import { Route as ApiPublicPaymentsWebhookProviderRouteImport } from './routes/api/public/payments.webhook.$provider'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -110,6 +112,11 @@ const AdminInventoryRoute = AdminInventoryRouteImport.update({
   path: '/inventory',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminProductsRoute = AdminProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -130,6 +137,12 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
   path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPaymentsWebhookProviderRoute =
+  ApiPublicPaymentsWebhookProviderRouteImport.update({
+    id: '/api/public/payments/webhook/$provider',
+    path: '/api/public/payments/webhook/$provider',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -147,11 +160,13 @@ export interface FileRoutesByFullPath {
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/designs': typeof AdminDesignsRoute
   '/admin/inventory': typeof AdminInventoryRoute
+  '/admin/payments': typeof AdminPaymentsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/team': typeof AdminTeamRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/api/public/payments/webhook/$provider': typeof ApiPublicPaymentsWebhookProviderRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -168,11 +183,13 @@ export interface FileRoutesByTo {
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/designs': typeof AdminDesignsRoute
   '/admin/inventory': typeof AdminInventoryRoute
+  '/admin/payments': typeof AdminPaymentsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/team': typeof AdminTeamRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin': typeof AdminIndexRoute
+  '/api/public/payments/webhook/$provider': typeof ApiPublicPaymentsWebhookProviderRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -191,11 +208,13 @@ export interface FileRoutesById {
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/designs': typeof AdminDesignsRoute
   '/admin/inventory': typeof AdminInventoryRoute
+  '/admin/payments': typeof AdminPaymentsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/team': typeof AdminTeamRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
+  '/api/public/payments/webhook/$provider': typeof ApiPublicPaymentsWebhookProviderRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -215,11 +234,13 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/designs'
     | '/admin/inventory'
+    | '/admin/payments'
     | '/admin/products'
     | '/admin/settings'
     | '/admin/team'
     | '/product/$slug'
     | '/admin/'
+    | '/api/public/payments/webhook/$provider'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -236,11 +257,13 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/designs'
     | '/admin/inventory'
+    | '/admin/payments'
     | '/admin/products'
     | '/admin/settings'
     | '/admin/team'
     | '/product/$slug'
     | '/admin'
+    | '/api/public/payments/webhook/$provider'
   id:
     | '__root__'
     | '/'
@@ -258,11 +281,13 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/designs'
     | '/admin/inventory'
+    | '/admin/payments'
     | '/admin/products'
     | '/admin/settings'
     | '/admin/team'
     | '/product/$slug'
     | '/admin/'
+    | '/api/public/payments/webhook/$provider'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -278,6 +303,7 @@ export interface RootRouteChildren {
   OrderRoute: typeof OrderRoute
   ShopRoute: typeof ShopRoute
   ProductSlugRoute: typeof ProductSlugRoute
+  ApiPublicPaymentsWebhookProviderRoute: typeof ApiPublicPaymentsWebhookProviderRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -394,6 +420,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInventoryRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/payments': {
+      id: '/admin/payments'
+      path: '/payments'
+      fullPath: '/admin/payments'
+      preLoaderRoute: typeof AdminPaymentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/products': {
       id: '/admin/products'
       path: '/products'
@@ -422,6 +455,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/webhook/$provider': {
+      id: '/api/public/payments/webhook/$provider'
+      path: '/api/public/payments/webhook/$provider'
+      fullPath: '/api/public/payments/webhook/$provider'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookProviderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -430,6 +470,7 @@ interface AdminRouteChildren {
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminDesignsRoute: typeof AdminDesignsRoute
   AdminInventoryRoute: typeof AdminInventoryRoute
+  AdminPaymentsRoute: typeof AdminPaymentsRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminTeamRoute: typeof AdminTeamRoute
@@ -441,6 +482,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCustomersRoute: AdminCustomersRoute,
   AdminDesignsRoute: AdminDesignsRoute,
   AdminInventoryRoute: AdminInventoryRoute,
+  AdminPaymentsRoute: AdminPaymentsRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminTeamRoute: AdminTeamRoute,
@@ -462,6 +504,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrderRoute: OrderRoute,
   ShopRoute: ShopRoute,
   ProductSlugRoute: ProductSlugRoute,
+  ApiPublicPaymentsWebhookProviderRoute: ApiPublicPaymentsWebhookProviderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
