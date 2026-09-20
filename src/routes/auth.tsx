@@ -37,7 +37,7 @@ function AuthPage() {
       const { data } = await supabase.auth.getUser();
       if (!data.user) return;
       const { data: isAdmin } = await supabase.rpc("is_admin");
-      if (isAdmin) void navigate({ to: "/admin" });
+      void navigate({ to: isAdmin ? "/admin" : "/account" });
     })();
   }, [navigate]);
 
