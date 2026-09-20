@@ -49,10 +49,10 @@ function AccountPage() {
 
   const request = useMutation({
     mutationFn: async () => {
-      const { error: e } = await supabase.rpc("request_admin_access", {
-        p_full_name: fullName.trim() || undefined,
-        p_message: message.trim() || undefined,
-      });
+      const args: { p_full_name?: string; p_message?: string } = {};
+      if (fullName.trim()) args.p_full_name = fullName.trim();
+      if (message.trim()) args.p_message = message.trim();
+      const { error: e } = await supabase.rpc("request_admin_access", args);
       if (e) throw new Error(friendlyAdminError(e.message));
     },
     onSuccess: () => {
