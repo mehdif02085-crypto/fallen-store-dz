@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          details: Json
+          id: string
+          target_email: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          target_email?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          target_email?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
+      admin_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_note: string | null
+          email: string
+          full_name: string | null
+          id: string
+          message: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          email: string
+          full_name?: string | null
+          id?: string
+          message?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          message?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -522,6 +594,24 @@ export type Database = {
         }
         Relationships: []
       }
+      super_admins: {
+        Row: {
+          created_at: string
+          email: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -569,6 +659,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_admin_request: {
+        Args: { p_note?: string; p_request_id: string }
+        Returns: Json
+      }
+      current_verified_email: { Args: never; Returns: string }
       get_order_by_number: {
         Args: { p_order_number: string; p_phone: string }
         Returns: Json
@@ -581,8 +676,53 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_super_admin: { Args: never; Returns: boolean }
+      list_admins: {
+        Args: never
+        Returns: {
+          email: string
+          granted_at: string
+          is_super: boolean
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }[]
+      }
+      list_customers: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          full_name: string
+          orders_count: number
+          phone: string
+          total_spent_da: number
+          user_id: string
+        }[]
+      }
+      log_admin_action: {
+        Args: {
+          p_action: string
+          p_details: Json
+          p_target_email: string
+          p_target_user: string
+        }
+        Returns: undefined
+      }
+      my_admin_status: { Args: never; Returns: Json }
       place_order: {
         Args: { p_customer: Json; p_items: Json; p_payment_method: string }
+        Returns: Json
+      }
+      reject_admin_request: {
+        Args: { p_note?: string; p_request_id: string }
+        Returns: Json
+      }
+      request_admin_access: {
+        Args: { p_full_name?: string; p_message?: string }
+        Returns: Json
+      }
+      revoke_admin_access: {
+        Args: { p_note?: string; p_user_id: string }
         Returns: Json
       }
     }

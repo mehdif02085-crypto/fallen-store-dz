@@ -34,7 +34,11 @@ export const Route = createFileRoute("/admin")({
 const LINKS = [
   { to: "/admin", label: "Commandes", exact: true },
   { to: "/admin/products", label: "Produits", exact: false },
+  { to: "/admin/inventory", label: "Inventaire", exact: false },
+  { to: "/admin/customers", label: "Clients", exact: false },
   { to: "/admin/designs", label: "Personnalisations", exact: false },
+  { to: "/admin/team", label: "Administrateurs", exact: false },
+  { to: "/admin/audit", label: "Journal", exact: false },
   { to: "/admin/settings", label: "Réglages", exact: false },
 ] as const;
 

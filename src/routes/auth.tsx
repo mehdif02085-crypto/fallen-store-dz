@@ -37,7 +37,7 @@ function AuthPage() {
       const { data } = await supabase.auth.getUser();
       if (!data.user) return;
       const { data: isAdmin } = await supabase.rpc("is_admin");
-      if (isAdmin) void navigate({ to: "/admin" });
+      void navigate({ to: isAdmin ? "/admin" : "/account" });
     })();
   }, [navigate]);
 
@@ -59,7 +59,7 @@ function AuthPage() {
         return;
       }
       setInfo(
-        "Compte créé. Confirmez votre e-mail, puis demandez au propriétaire de la boutique de vous accorder les droits administrateur.",
+        "Compte créé. Confirmez votre e-mail, connectez-vous, puis envoyez une demande d'accès administrateur depuis votre compte.",
       );
       return;
     }
@@ -75,11 +75,7 @@ function AuthPage() {
     }
     const { data: isAdmin } = await supabase.rpc("is_admin");
     setBusy(false);
-    if (!isAdmin) {
-      setError(t("auth.noAccess"));
-      return;
-    }
-    void navigate({ to: "/admin" });
+    void navigate({ to: isAdmin ? "/admin" : "/account" });
   }
 
   return (
