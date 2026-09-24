@@ -32,10 +32,11 @@ export const Route = createFileRoute("/api/public/payments/webhook/$provider")({
           p_provider_ref: verdict.providerRef,
           p_event_id: verdict.eventId,
           p_result: verdict.result,
-          p_amount_da: verdict.amountDa,
+          p_amount_da: verdict.amountDa ?? undefined,
           p_payload: { type: verdict.eventType },
-          p_reason: verdict.reason,
+          p_reason: verdict.reason ?? undefined,
         });
+
 
         if (error) {
           // Unknown reference: acknowledge so the provider stops retrying a payment we do not own.
