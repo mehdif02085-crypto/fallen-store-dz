@@ -63,6 +63,8 @@ function Checkout() {
   const { data: wilayas = [] } = useQuery(wilayasQuery);
   const { data: methods = [] } = useQuery(paymentMethodsQuery);
   const { data: delivery } = useQuery(deliverySettingsQuery);
+  const beginPayment = useServerFn(startPayment);
+
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
