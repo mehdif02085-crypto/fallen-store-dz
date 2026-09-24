@@ -11,7 +11,10 @@ export const Route = createFileRoute("/api/public/payments/webhook/$provider")({
       POST: async ({ request, params }) => {
         const key = params.provider;
         const { PROVIDERS } = await import("@/lib/payments/providers.server");
-        const provider = (PROVIDERS as Record<string, (typeof PROVIDERS)["chargily"]>)[key];
+        const provider = (PROVIDERS as unknown as Record<string, (typeof PROVIDERS)["chargily"]>)[
+          key
+        ];
+
         if (!provider) return new Response("Unknown provider", { status: 404 });
 
         const raw = await request.text();
