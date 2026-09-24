@@ -157,17 +157,21 @@ export const syncPaymentStatus = createServerFn({ method: "POST" })
       if (payment?.provider === "satim" && payment.provider_ref) {
         const verdict = await PROVIDERS.satim.confirmOrder(payment.provider_ref);
         if (verdict && verdict.result !== "pending") {
-          await supabaseAdmin.rpc("confirm_payment", {
+          const args: Record<string, unknown> = {
             p_provider: "satim",
             p_provider_ref: verdict.providerRef,
             p_event_id: verdict.eventId,
             p_result: verdict.result,
-            p_amount_da: verdict.amountDa ?? undefined,
             p_payload: { type: verdict.eventType },
-            p_reason: verdict.reason ?? undefined,
-
-          });
+          };
+          if (typeof verdict.amountDa === "number") args["p_amount_da"] = verdict.amountDa;
+          if (verdict.reason) args["p_reason"] = verdict.reason;
+          await supabaseAdmin.rpc(
+            "confirm_payment",
+            args as Parameters<typeof supabaseAdmin.rpc<"confirm_payment">>[1],
+          );
         }
+
       }
     }
 
