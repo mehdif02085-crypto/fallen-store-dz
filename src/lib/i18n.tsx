@@ -134,6 +134,9 @@ const dict = {
     "footer.payment": "Paiement",
     "footer.rights": "Tous droits réservés",
     "status.pending": "En attente",
+    "status.payment_pending": "Paiement en attente",
+    "status.paid": "Payée",
+    "status.payment_failed": "Paiement échoué",
     "status.confirmed": "Confirmée",
     "status.preparing": "En préparation",
     "status.shipped": "Expédiée",
@@ -143,7 +146,17 @@ const dict = {
     "pay.pending": "En attente",
     "pay.paid": "Payée",
     "pay.failed": "Échouée",
+    "pay.cancelled": "Annulée",
+    "pay.expired": "Expirée",
     "pay.refunded": "Remboursée",
+    "pay.redirect": "Redirection vers la page de paiement sécurisée…",
+    "pay.retry": "Reprendre le paiement",
+    "pay.pendingNote":
+      "Votre commande est enregistrée. Elle sera confirmée dès que le paiement sera validé par la banque.",
+    "pay.failedNote": "Le paiement n'a pas abouti. Vous pouvez réessayer ou choisir le paiement à la livraison.",
+    "pay.manualNote":
+      "Envoyez le virement, puis le magasin confirmera votre paiement avant la préparation.",
+
     "auth.title": "Espace administrateur",
     "auth.email": "E-mail",
     "auth.password": "Mot de passe",
