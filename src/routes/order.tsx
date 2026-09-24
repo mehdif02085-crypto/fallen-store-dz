@@ -44,6 +44,8 @@ export const Route = createFileRoute("/order")({
     if (typeof search["number"] === "string") out.number = search["number"];
     if (typeof search["phone"] === "string") out.phone = search["phone"];
     if (search["new"] === true || search["new"] === "true") out.new = true;
+    if (typeof search["pay"] === "string") out.pay = search["pay"];
+
     return out;
   },
   head: () => ({
