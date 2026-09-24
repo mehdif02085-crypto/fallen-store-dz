@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -7,7 +8,32 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
 import { formatDA, isValidAlgerianPhone, normalizePhone } from "@/lib/format";
+import { startPayment } from "@/lib/payments.functions";
 import { deliverySettingsQuery, paymentMethodsQuery, wilayasQuery } from "@/lib/queries";
+
+const KEY_STORAGE = "fallen.checkout.key";
+
+/** Stable key per checkout attempt: a refresh or double submit cannot create two orders. */
+function idempotencyKey(): string {
+  try {
+    const existing = sessionStorage.getItem(KEY_STORAGE);
+    if (existing) return existing;
+    const fresh = crypto.randomUUID();
+    sessionStorage.setItem(KEY_STORAGE, fresh);
+    return fresh;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
+
+function clearIdempotencyKey() {
+  try {
+    sessionStorage.removeItem(KEY_STORAGE);
+  } catch {
+    /* ignore */
+  }
+}
+
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
