@@ -1,14 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Search } from "lucide-react";
-import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { CheckCircle2, Clock, Search, XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { formatDA } from "@/lib/format";
+import { startPayment, syncPaymentStatus } from "@/lib/payments.functions";
 
-type OrderSearch = { number?: string; phone?: string; new?: boolean };
+type OrderSearch = { number?: string; phone?: string; new?: boolean; pay?: string };
+
 
 type OrderItem = {
   product_name: string;
