@@ -80,6 +80,7 @@ function Checkout() {
   async function submit(ev: React.FormEvent) {
     ev.preventDefault();
     setFormError(null);
+    if (submitting) return;
     if (items.length === 0) {
       setFormError(t("checkout.err.empty"));
       return;
@@ -105,11 +106,11 @@ function Checkout() {
       },
       p_items: payloadItems,
       p_payment_method: activeMethod,
+      p_idempotency_key: idempotencyKey(),
     });
 
-    setSubmitting(false);
-
     if (error) {
+      setSubmitting(false);
       const msg = error.message || "";
       if (msg.includes("OUT_OF_STOCK")) setFormError(t("checkout.err.stock"));
       else if (msg.includes("PAYMENT_METHOD")) setFormError(t("checkout.notConfigured"));
@@ -118,17 +119,51 @@ function Checkout() {
       return;
     }
 
-    const result = data as { order_number: string } | null;
+    const result = data as {
+      order_number: string;
+      requires_payment?: boolean;
+      duplicate?: boolean;
+    } | null;
     if (!result?.order_number) {
+      setSubmitting(false);
       setFormError(t("checkout.err.generic"));
       return;
     }
+
+    const normalizedPhone = normalizePhone(phone);
+
+    // Online payment: ask the server to open a provider checkout session.
+    if (result.requires_payment) {
+      const outcome = await beginPayment({
+        data: {
+          orderNumber: result.order_number,
+          phone: normalizedPhone,
+          origin: window.location.origin,
+        },
+      });
+      clearIdempotencyKey();
+      clear();
+      if (outcome.ok) {
+        window.location.href = outcome.redirectUrl;
+        return;
+      }
+      setSubmitting(false);
+      void navigate({
+        to: "/order",
+        search: { number: result.order_number, phone: normalizedPhone, new: true },
+      });
+      return;
+    }
+
+    clearIdempotencyKey();
     clear();
+    setSubmitting(false);
     void navigate({
       to: "/order",
-      search: { number: result.order_number, phone: normalizePhone(phone), new: true },
+      search: { number: result.order_number, phone: normalizedPhone, new: true },
     });
   }
+
 
   function Err({ name }: { name: string }) {
     const msg = errors[name];
