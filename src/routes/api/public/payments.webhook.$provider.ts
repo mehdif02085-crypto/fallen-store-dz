@@ -11,7 +11,10 @@ export const Route = createFileRoute("/api/public/payments/webhook/$provider")({
       POST: async ({ request, params }) => {
         const key = params.provider;
         const { PROVIDERS } = await import("@/lib/payments/providers.server");
-        const provider = (PROVIDERS as Record<string, (typeof PROVIDERS)["chargily"]>)[key];
+        const provider = (PROVIDERS as unknown as Record<string, (typeof PROVIDERS)["chargily"]>)[
+          key
+        ];
+
         if (!provider) return new Response("Unknown provider", { status: 404 });
 
         const raw = await request.text();
@@ -24,18 +27,23 @@ export const Route = createFileRoute("/api/public/payments/webhook/$provider")({
         if (!verdict) return new Response("Invalid signature", { status: 401 });
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data, error } = await supabaseAdmin.rpc("confirm_payment", {
+        const args: Record<string, unknown> = {
           p_provider: provider.key,
           p_provider_ref: verdict.providerRef,
           p_event_id: verdict.eventId,
           p_result: verdict.result,
-          p_amount_da: verdict.amountDa,
           p_payload: { type: verdict.eventType },
-          p_reason: verdict.reason,
-        });
+        };
+        if (typeof verdict.amountDa === "number") args["p_amount_da"] = verdict.amountDa;
+        if (verdict.reason) args["p_reason"] = verdict.reason;
+        const { data, error } = await supabaseAdmin.rpc(
+          "confirm_payment",
+          args as Parameters<typeof supabaseAdmin.rpc<"confirm_payment">>[1],
+        );
 
         if (error) {
           // Unknown reference: acknowledge so the provider stops retrying a payment we do not own.
+
           if (error.message.includes("PAYMENT_NOT_FOUND")) {
             return new Response("ignored", { status: 200 });
           }

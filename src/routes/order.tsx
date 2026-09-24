@@ -1,14 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Search } from "lucide-react";
-import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { CheckCircle2, Clock, Search, XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { formatDA } from "@/lib/format";
+import { startPayment, syncPaymentStatus } from "@/lib/payments.functions";
 
-type OrderSearch = { number?: string; phone?: string; new?: boolean };
+type OrderSearch = { number?: string; phone?: string; new?: boolean; pay?: string };
+
 
 type OrderItem = {
   product_name: string;
@@ -41,6 +44,8 @@ export const Route = createFileRoute("/order")({
     if (typeof search["number"] === "string") out.number = search["number"];
     if (typeof search["phone"] === "string") out.phone = search["phone"];
     if (search["new"] === true || search["new"] === "true") out.new = true;
+    if (typeof search["pay"] === "string") out.pay = search["pay"];
+
     return out;
   },
   head: () => ({
@@ -79,6 +84,58 @@ function OrderPage() {
   });
 
   const order = lookup.data ?? null;
+  const syncPayment = useServerFn(syncPaymentStatus);
+  const beginPayment = useServerFn(startPayment);
+  const [retrying, setRetrying] = useState(false);
+
+  // Returning from a provider redirect: ask the server to reconcile with the provider,
+  // then re-read the order. The browser never decides the payment result.
+  useEffect(() => {
+    if (!search.pay || !search.number || !search.phone) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        await syncPayment({ data: { orderNumber: search.number!, phone: search.phone! } });
+      } catch {
+        /* reconciliation is best-effort; the webhook remains the source of truth */
+      }
+      if (!cancelled) void lookup.refetch();
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search.pay, search.number, search.phone]);
+
+  const paid = order?.payment_status === "paid";
+  const pendingPayment =
+    order?.payment_status === "pending" || order?.status === "payment_pending";
+  const failedPayment =
+    order?.payment_status === "failed" ||
+    order?.payment_status === "cancelled" ||
+    order?.payment_status === "expired" ||
+    order?.status === "payment_failed";
+
+  async function retryPayment() {
+    if (!order || retrying) return;
+    setRetrying(true);
+    try {
+      const outcome = await beginPayment({
+        data: {
+          orderNumber: order.order_number,
+          phone: search.phone!,
+          origin: window.location.origin,
+        },
+      });
+      if (outcome.ok) {
+        window.location.href = outcome.redirectUrl;
+        return;
+      }
+    } catch {
+      /* fall through to re-enable the button */
+    }
+    setRetrying(false);
+  }
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -86,7 +143,13 @@ function OrderPage() {
       <main className="mx-auto max-w-2xl px-5 pt-6">
         {search.new && order && (
           <div className="rounded-2xl glass p-5 text-center rise">
-            <CheckCircle2 className="mx-auto size-8 text-accent" />
+            {failedPayment ? (
+              <XCircle className="mx-auto size-8 text-danger" />
+            ) : pendingPayment && !paid ? (
+              <Clock className="mx-auto size-8 text-accent" />
+            ) : (
+              <CheckCircle2 className="mx-auto size-8 text-accent" />
+            )}
             <h1 className="mt-3 font-display text-3xl leading-none">{t("confirm.title")}</h1>
             <p className="mt-2 text-sm text-mut">{t("confirm.thanks")}</p>
             <p className="mt-3 text-[11px] uppercase tracking-widest text-mut">
@@ -95,11 +158,29 @@ function OrderPage() {
             <p className="font-display text-2xl" dir="ltr">
               {order.order_number}
             </p>
-            <p className="mt-2 text-xs text-mut">{t("confirm.callback")}</p>
+            <p className="mt-2 text-xs text-mut">
+              {failedPayment
+                ? t("pay.failedNote")
+                : pendingPayment && !paid
+                  ? t("pay.pendingNote")
+                  : t("confirm.callback")}
+            </p>
           </div>
         )}
 
+        {order && (pendingPayment || failedPayment) && !paid && order.payment_method !== "cod" && (
+          <button
+            type="button"
+            onClick={() => void retryPayment()}
+            disabled={retrying}
+            className="btn-primary mt-4 w-full"
+          >
+            {retrying ? t("pay.redirect") : t("pay.retry")}
+          </button>
+        )}
+
         {!search.new && (
+
           <h1 className="font-display text-4xl leading-none">{t("confirm.lookup")}</h1>
         )}
 
