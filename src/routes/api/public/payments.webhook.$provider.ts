@@ -41,7 +41,9 @@ export const Route = createFileRoute("/api/public/payments/webhook/$provider")({
           args as Parameters<typeof supabaseAdmin.rpc<"confirm_payment">>[1],
         );
 
+        if (error) {
           // Unknown reference: acknowledge so the provider stops retrying a payment we do not own.
+
           if (error.message.includes("PAYMENT_NOT_FOUND")) {
             return new Response("ignored", { status: 200 });
           }
