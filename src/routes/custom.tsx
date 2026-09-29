@@ -9,6 +9,9 @@ import { useCart, type CustomSpec } from "@/lib/cart";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { formatDA } from "@/lib/format";
 import { customSettingsQuery } from "@/lib/queries";
+import shirtPairOne from "@/assets/custom-shirt-pair-01.jpg";
+import shirtPairTwo from "@/assets/custom-shirt-pair-02.jpg";
+import shirtPairThree from "@/assets/custom-shirt-pair-03.jpg";
 
 export const Route = createFileRoute("/custom")({
   head: () => ({
@@ -32,7 +35,52 @@ export const Route = createFileRoute("/custom")({
   component: CustomShirt,
 });
 
-const MODELS = ["Heavyweight Tee", "Oversized Tee", "Boxy Hoodie", "Crewneck Sweat"] as const;
+const MODELS = [
+  "Regular Tee",
+  "Oversized Tee",
+  "Heavyweight Tee",
+  "Long Sleeve",
+  "Crewneck Sweat",
+  "Boxy Hoodie",
+] as const;
+const EXAMPLES = [
+  {
+    name: "Regular Tee",
+    style: "Minimal type",
+    image: shirtPairOne,
+    side: "left",
+  },
+  {
+    name: "Oversized Tee",
+    style: "Street geometry",
+    image: shirtPairOne,
+    side: "right",
+  },
+  {
+    name: "Heavyweight Tee",
+    style: "Gym graphic",
+    image: shirtPairTwo,
+    side: "left",
+  },
+  {
+    name: "Long Sleeve",
+    style: "Anime inspired",
+    image: shirtPairTwo,
+    side: "right",
+  },
+  {
+    name: "Crewneck Sweat",
+    style: "Vintage outdoor",
+    image: shirtPairThree,
+    side: "left",
+  },
+  {
+    name: "Boxy Hoodie",
+    style: "Minimal mark",
+    image: shirtPairThree,
+    side: "right",
+  },
+] as const;
 const SHIRT_COLORS = [
   { name: "Noir", hex: "#0a0a0b" },
   { name: "Os", hex: "#d6d3ca" },
@@ -126,6 +174,11 @@ function CustomShirt() {
 
   const disabled = settings ? !settings.is_enabled : false;
 
+  function chooseExample(example: (typeof EXAMPLES)[number]) {
+    setModel(example.name);
+    document.getElementById("customizer")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   return (
     <div className="min-h-screen bg-canvas">
       <SiteHeader />
@@ -136,6 +189,47 @@ function CustomShirt() {
         <h1 className="mt-3 font-display text-4xl leading-[0.9]">{t("custom.title")}</h1>
         <p className="mt-2 max-w-[42ch] text-sm text-mut">{t("custom.text")}</p>
 
+        <section className="mt-8" aria-labelledby="design-inspiration-title">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="label">Design studio</p>
+              <h2 id="design-inspiration-title" className="font-display text-2xl leading-none">
+                Design inspiration
+              </h2>
+            </div>
+            <span className="text-xs text-mut">06 examples</span>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">
+            {EXAMPLES.map((example) => (
+              <article key={example.name} className="group min-w-0 overflow-hidden rounded-lg bg-panel">
+                <div className="relative aspect-[3/4] overflow-hidden bg-ink/5">
+                  <img
+                    src={example.image}
+                    alt={`${example.name} — ${example.style}`}
+                    loading="lazy"
+                    width={1536}
+                    height={1024}
+                    className={`absolute inset-y-0 h-full w-[200%] max-w-none object-cover transition-transform duration-500 group-hover:scale-[1.03] ${
+                      example.side === "left" ? "start-0 origin-left" : "end-0 origin-right"
+                    }`}
+                  />
+                </div>
+                <div className="p-2.5">
+                  <h3 className="truncate text-xs font-semibold">{example.name}</h3>
+                  <p className="mt-0.5 truncate text-[10px] text-mut">{example.style}</p>
+                  <button
+                    type="button"
+                    onClick={() => chooseExample(example)}
+                    className="mt-2 min-h-9 w-full rounded-md bg-ink/5 px-2 text-[10px] font-semibold transition-colors hover:bg-accent hover:text-accent-foreground"
+                  >
+                    Customize
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
         {disabled ? (
           <div className="mt-6 rounded-2xl glass p-5 text-sm text-mut">
             {t("custom.disabled")}
@@ -144,7 +238,7 @@ function CustomShirt() {
             </Link>
           </div>
         ) : (
-          <div className="mt-6 grid gap-6 md:grid-cols-[1fr_1fr]">
+          <div id="customizer" className="mt-10 grid scroll-mt-24 gap-6 md:grid-cols-[1fr_1fr]">
             {/* PREVIEW */}
             <div className="order-first md:order-last">
               <p className="label">{t("custom.preview")}</p>
