@@ -132,8 +132,10 @@ function CustomShirt() {
       return;
     }
     setUploading(true);
-    const ext = file.name.split(".").pop()?.toLowerCase() ?? "png";
-    const path = `${crypto.randomUUID()}.${ext}`;
+    const ext = file.type === "image/jpeg" ? "jpg" : file.type === "image/webp" ? "webp" : "png";
+    const { data: sess } = await supabase.auth.getSession();
+    const folder = sess.session?.user.id ?? "guest";
+    const path = `${folder}/${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from("custom-designs").upload(path, file, {
       contentType: file.type,
       upsert: false,

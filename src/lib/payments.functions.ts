@@ -22,6 +22,26 @@ function safeOrigin(origin: string): string {
   }
 }
 
+type AdminClient = (typeof import("@/integrations/supabase/client.server"))["supabaseAdmin"];
+
+/**
+ * Caller must prove they own the order: either the secret checkout token that only the
+ * browser which placed the order holds, or a signed-in session of the order's owner.
+ */
+async function callerOwnsOrder(
+  admin: AdminClient,
+  order: { user_id: string | null; idempotency_key: string | null },
+  token: string | undefined,
+): Promise<boolean> {
+  if (token && order.idempotency_key && token === order.idempotency_key) return true;
+  if (!order.user_id) return false;
+  const { getRequest } = await import("@tanstack/react-start/server");
+  const auth = getRequest()?.headers.get("authorization") ?? "";
+  if (!auth.startsWith("Bearer ")) return false;
+  const { data } = await admin.auth.getUser(auth.slice(7));
+  return data.user?.id === order.user_id;
+}
+
 /** Starts an online payment for an existing order. Prices come from the database only. */
 export const startPayment = createServerFn({ method: "POST" })
   .inputValidator((data) =>
@@ -30,6 +50,7 @@ export const startPayment = createServerFn({ method: "POST" })
         orderNumber: z.string().min(4).max(40),
         phone: z.string().min(9).max(20),
         origin: z.string().max(200).default(""),
+        token: z.string().max(100).optional(),
       })
       .parse(data),
   )
@@ -39,12 +60,12 @@ export const startPayment = createServerFn({ method: "POST" })
 
     const { data: order, error } = await supabaseAdmin
       .from("orders")
-      .select("order_number, phone, total_da, payment_method, payment_status, customer_name")
+      .select("order_number, phone, total_da, payment_method, payment_status, customer_name, user_id, idempotency_key")
       .eq("order_number", data.orderNumber)
       .eq("phone", data.phone)
       .maybeSingle();
 
-    if (error || !order) {
+    if (error || !order || !(await callerOwnsOrder(supabaseAdmin, order, data.token))) {
       return { ok: false, reason: "ERROR", message: "Commande introuvable." };
     }
     if (order.payment_status === "paid") {
@@ -132,7 +153,11 @@ export const getPaymentIntegrations = createServerFn({ method: "GET" })
 export const syncPaymentStatus = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z
-      .object({ orderNumber: z.string().min(4).max(40), phone: z.string().min(9).max(20) })
+      .object({
+        orderNumber: z.string().min(4).max(40),
+        phone: z.string().min(9).max(20),
+        token: z.string().max(100).optional(),
+      })
       .parse(data),
   )
   .handler(async ({ data }): Promise<{ payment_status: string; status: string }> => {
@@ -141,11 +166,13 @@ export const syncPaymentStatus = createServerFn({ method: "POST" })
 
     const { data: order } = await supabaseAdmin
       .from("orders")
-      .select("id, order_number, phone, payment_status, status")
+      .select("id, order_number, phone, payment_status, status, user_id, idempotency_key")
       .eq("order_number", data.orderNumber)
       .eq("phone", data.phone)
       .maybeSingle();
-    if (!order) throw new Error("ORDER_NOT_FOUND");
+    if (!order || !(await callerOwnsOrder(supabaseAdmin, order, data.token))) {
+      throw new Error("ORDER_NOT_FOUND");
+    }
 
     if (order.payment_status === "pending") {
       const { data: payment } = await supabaseAdmin

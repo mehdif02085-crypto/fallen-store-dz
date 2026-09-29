@@ -9,6 +9,7 @@ import { useCart } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
 import { formatDA, isValidAlgerianPhone, normalizePhone } from "@/lib/format";
 import { startPayment } from "@/lib/payments.functions";
+import { savePaymentToken } from "@/lib/payments/token";
 import { deliverySettingsQuery, paymentMethodsQuery, wilayasQuery } from "@/lib/queries";
 
 const KEY_STORAGE = "fallen.checkout.key";
@@ -122,6 +123,7 @@ function Checkout() {
         : { kind: "product", quantity: i.quantity, variant_id: i.variantId },
     );
 
+    const checkoutToken = idempotencyKey();
     const { data, error } = await supabase.rpc("place_order", {
       p_customer: {
         full_name: fullName.trim(),
@@ -134,7 +136,7 @@ function Checkout() {
       },
       p_items: payloadItems,
       p_payment_method: activeMethod,
-      p_idempotency_key: idempotencyKey(),
+      p_idempotency_key: checkoutToken,
     });
 
     if (error) {
@@ -159,6 +161,7 @@ function Checkout() {
     }
 
     const normalizedPhone = normalizePhone(phone);
+    savePaymentToken(result.order_number, checkoutToken);
 
     // Online payment: ask the server to open a provider checkout session.
     if (result.requires_payment) {
@@ -167,6 +170,7 @@ function Checkout() {
           orderNumber: result.order_number,
           phone: normalizedPhone,
           origin: window.location.origin,
+          token: checkoutToken,
         },
       });
       clearIdempotencyKey();

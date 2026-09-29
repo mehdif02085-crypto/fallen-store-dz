@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { formatDA } from "@/lib/format";
 import { startPayment, syncPaymentStatus } from "@/lib/payments.functions";
+import { readPaymentToken } from "@/lib/payments/token";
 
 type OrderSearch = { number?: string; phone?: string; new?: boolean; pay?: string };
 
@@ -95,7 +96,10 @@ function OrderPage() {
     let cancelled = false;
     void (async () => {
       try {
-        await syncPayment({ data: { orderNumber: search.number!, phone: search.phone! } });
+        const token = readPaymentToken(search.number!);
+        await syncPayment({
+          data: { orderNumber: search.number!, phone: search.phone!, ...(token ? { token } : {}) },
+        });
       } catch {
         /* reconciliation is best-effort; the webhook remains the source of truth */
       }
@@ -125,6 +129,7 @@ function OrderPage() {
           orderNumber: order.order_number,
           phone: search.phone!,
           origin: window.location.origin,
+          ...(readPaymentToken(order.order_number) ? { token: readPaymentToken(order.order_number)! } : {}),
         },
       });
       if (outcome.ok) {
