@@ -17,6 +17,10 @@ export type CustomSpec = {
   custom_text: string | null;
   text_color: string | null;
   position: string;
+  /** Full designer configuration (front/back elements). */
+  layout?: Record<string, unknown> | null;
+  preview_front_url?: string | null;
+  preview_back_url?: string | null;
 };
 
 export type CartItem = {

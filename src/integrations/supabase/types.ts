@@ -125,7 +125,10 @@ export type Database = {
           custom_text: string | null
           design_image_url: string | null
           id: string
+          layout: Json | null
           position: string
+          preview_back_url: string | null
+          preview_front_url: string | null
           price_da: number
           shirt_color_hex: string
           shirt_color_name: string
@@ -138,7 +141,10 @@ export type Database = {
           custom_text?: string | null
           design_image_url?: string | null
           id?: string
+          layout?: Json | null
           position?: string
+          preview_back_url?: string | null
+          preview_front_url?: string | null
           price_da: number
           shirt_color_hex: string
           shirt_color_name: string
@@ -151,7 +157,10 @@ export type Database = {
           custom_text?: string | null
           design_image_url?: string | null
           id?: string
+          layout?: Json | null
           position?: string
+          preview_back_url?: string | null
+          preview_front_url?: string | null
           price_da?: number
           shirt_color_hex?: string
           shirt_color_name?: string
