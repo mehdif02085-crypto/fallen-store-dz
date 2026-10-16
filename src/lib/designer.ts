@@ -72,7 +72,7 @@ export const FONTS = [
   { id: "serif", label: "Serif", css: 'Georgia, "Times New Roman", serif' },
   { id: "mono", label: "Mono", css: '"Courier New", monospace' },
 ] as const;
-export const fontCss = (id: string) => FONTS.find((f) => f.id === id)?.css ?? FONTS[0].css;
+export const fontCss = (id: string) => FONTS.find((f) => f.id === id)?.css ?? FONTS[0]!.css;
 
 export const INK_COLORS = ["#ffffff", "#111113", "#ff5a2c", "#d9d3c3", "#e11d2e", "#2563eb", "#facc15", "#22c55e"];
 
@@ -120,7 +120,7 @@ export const GRAPHICS = {
 
 export type Example = { id: string; label: string; design: () => Design };
 
-const C = (name: string) => SHIRT_COLORS.find((c) => c.name === name) ?? SHIRT_COLORS[0];
+const C = (name: string) => SHIRT_COLORS.find((c) => c.name === name) ?? SHIRT_COLORS[0]!;
 
 export const EXAMPLES: Example[] = [
   {
@@ -199,7 +199,7 @@ function loadImg(src: string) {
 
 /** Renders one side of the design to a canvas, using the same geometry as the live preview. */
 export async function renderSide(design: Design, side: Side, size = 900, bg = "#ececec") {
-  const model = MODELS.find((m) => m.id === design.model) ?? MODELS[0];
+  const model = MODELS.find((m) => m.id === design.model) ?? MODELS[0]!;
   const cv = document.createElement("canvas");
   cv.width = size;
   cv.height = size;
