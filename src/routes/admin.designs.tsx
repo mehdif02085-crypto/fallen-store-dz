@@ -20,6 +20,9 @@ type DesignRow = {
   text_color: string | null;
   position: string;
   price_da: number;
+  preview_front_url: string | null;
+  preview_back_url: string | null;
+  layout: { elements?: unknown[] } | null;
   created_at: string;
   order_items: {
     quantity: number;
@@ -64,9 +67,9 @@ function AdminDesigns() {
                   className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-xl"
                   style={{ backgroundColor: d.shirt_color_hex }}
                 >
-                  {d.design_image_url ? (
+                  {d.preview_front_url || d.design_image_url ? (
                     <Img
-                      src={storageRef("custom-designs", d.design_image_url)}
+                      src={storageRef("custom-designs", (d.preview_front_url ?? d.design_image_url)!)}
                       alt="Design client"
                       className="size-full object-contain"
                       width={192}
@@ -88,6 +91,9 @@ function AdminDesigns() {
                   </p>
                   {d.custom_text && <p className="mt-0.5 text-mut">Texte : “{d.custom_text}”</p>}
                   <p className="mt-0.5 text-mut">{formatDA(d.price_da)} DA</p>
+                  {d.layout?.elements && (
+                    <p className="mt-0.5 text-mut">{d.layout.elements.length} élément(s) · devant/dos</p>
+                  )}
                   {order && (
                     <p className="mt-1 text-mut">
                       <span dir="ltr">{order.order_number}</span> — {order.customer_name} ·{" "}
@@ -96,6 +102,12 @@ function AdminDesigns() {
                   )}
                 </div>
               </div>
+              {d.preview_back_url && (
+                <div className="mt-3 flex gap-2">
+                  <Img src={storageRef("custom-designs", d.preview_front_url!)} alt="Aperçu devant" className="size-28 rounded-lg object-cover" width={224} height={224} />
+                  <Img src={storageRef("custom-designs", d.preview_back_url)} alt="Aperçu dos" className="size-28 rounded-lg object-cover" width={224} height={224} />
+                </div>
+              )}
               {d.design_image_url && (
                 <button
                   type="button"
