@@ -229,7 +229,7 @@ function CustomShirt() {
             ? "front+back"
             : "back"
           : "front",
-        layout: toLayout(final) as unknown as CustomSpec["layout"],
+        layout: toLayout(final) as unknown as NonNullable<CustomSpec["layout"]>,
         preview_front_url: frontPath,
         preview_back_url: backPath,
       };
