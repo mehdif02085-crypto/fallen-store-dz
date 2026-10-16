@@ -80,7 +80,7 @@ function CustomShirt() {
   const [saving, setSaving] = useState(false);
   const [added, setAdded] = useState(false);
 
-  const model = MODELS.find((m) => m.id === design.model) ?? MODELS[0];
+  const model = MODELS.find((m) => m.id === design.model) ?? MODELS[0]!;
   const area = model.area[side];
   const sideEls = design.els.filter((e) => e.side === side);
   const sel = design.els.find((e) => e.id === selected) ?? null;
@@ -229,7 +229,7 @@ function CustomShirt() {
             ? "front+back"
             : "back"
           : "front",
-        layout: toLayout(final),
+        layout: toLayout(final) as unknown as NonNullable<CustomSpec["layout"]>,
         preview_front_url: frontPath,
         preview_back_url: backPath,
       };
@@ -694,7 +694,7 @@ function CustomShirt() {
 function Garment({ src, color, className }: { src: string; color: string; className?: string }) {
   const mask = { WebkitMaskImage: `url(${src})`, maskImage: `url(${src})`, WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center" } as const;
   return (
-    <div className={`relative isolate ${className ?? ""}`}>
+    <div className={`isolate ${className?.includes("absolute") ? className : `relative ${className ?? ""}`}`}>
       <div className="absolute inset-0" style={{ backgroundColor: color, ...mask }} />
       <img src={src} alt="" draggable={false} width={900} height={900} className="absolute inset-0 size-full object-contain mix-blend-multiply" />
       <img src={src} alt="" aria-hidden draggable={false} width={900} height={900} className="absolute inset-0 size-full object-contain opacity-10 mix-blend-screen" />
@@ -703,7 +703,7 @@ function Garment({ src, color, className }: { src: string; color: string; classN
 }
 
 function ExampleCard({ design, label, onPick, cta }: { design: Design; label: string; onPick: () => void; cta: string }) {
-  const m = MODELS.find((x) => x.id === design.model) ?? MODELS[0];
+  const m = MODELS.find((x) => x.id === design.model) ?? MODELS[0]!;
   const side: Side = design.els.some((e) => e.side === "back") && !design.els.some((e) => e.side === "front" && e.w > 0.15) ? "back" : "front";
   const show: Side = design.els.some((e) => e.side === "back") ? "back" : side;
   return (

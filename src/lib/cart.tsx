@@ -18,7 +18,7 @@ export type CustomSpec = {
   text_color: string | null;
   position: string;
   /** Full designer configuration (front/back elements). */
-  layout?: Record<string, unknown> | null;
+  layout?: import("@/integrations/supabase/types").Json;
   preview_front_url?: string | null;
   preview_back_url?: string | null;
 };
