@@ -694,7 +694,7 @@ function CustomShirt() {
 function Garment({ src, color, className }: { src: string; color: string; className?: string }) {
   const mask = { WebkitMaskImage: `url(${src})`, maskImage: `url(${src})`, WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center" } as const;
   return (
-    <div className={`relative isolate ${className ?? ""}`}>
+    <div className={`isolate ${className?.includes("absolute") ? className : `relative ${className ?? ""}`}`}>
       <div className="absolute inset-0" style={{ backgroundColor: color, ...mask }} />
       <img src={src} alt="" draggable={false} width={900} height={900} className="absolute inset-0 size-full object-contain mix-blend-multiply" />
       <img src={src} alt="" aria-hidden draggable={false} width={900} height={900} className="absolute inset-0 size-full object-contain opacity-10 mix-blend-screen" />
